@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Apex Financial (Banking Demo)
 
-## Getting Started
+Full‑stack banking demo app built to showcase product flows recruiters/interviewers can click through quickly.
 
-First, run the development server:
+## Highlights
+
+- **Core banking**: accounts, transactions, transfers
+- **Interac e‑Transfer**: send / inbox, accept/decline, auto‑deposit settings
+- **Bill Pay**: payees, scheduled payments, “run due payments”
+- **Spending Insights**: categories, budgets, 6‑month trend
+- **Disputes**: open a dispute case against a transaction
+- **Security**: MFA (TOTP), trusted devices, inactivity auto‑logout
+- **Recruiter Test Board**: one page to seed data + trigger flows
+
+## Tech Stack
+
+- Next.js (App Router)
+- NextAuth (Credentials)
+- Prisma + SQLite
+- Tailwind CSS
+
+## Quick Start (Local)
 
 ```bash
+npm install
+npm run prisma:generate
+npm run prisma:push
+npm run prisma:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo Login
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Email: `demo@apex.ca`
+- Password: (see `prisma/seed.ts`)
 
-## Learn More
+## Recruiter / Interviewer Test Board
 
-To learn more about Next.js, take a look at the following resources:
+The Test Board is available at:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/test-board`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+It is **gated** to avoid appearing for normal users. It shows up if:
 
-## Deploy on Vercel
+- You are logged in as `demo@apex.ca`, or
+- `NEXT_PUBLIC_ENABLE_TEST_BOARD=true`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Once you can access it, you can:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Seed demo data (contacts, payees, categories, transactions)
+- Generate an incoming e‑Transfer
+- Create a scheduled bill payment
+- Create a dispute case
+
+## Environment Variables
+
+Create a `.env` file (SQLite is used by default). Common vars:
+
+- `NEXTAUTH_URL=http://localhost:3000`
+- `NEXTAUTH_SECRET=...`
+- `NEXT_PUBLIC_ENABLE_TEST_BOARD=true` (optional)
+
+## Scripts
+
+- `npm run dev` — start dev server
+- `npm run build` — production build
+- `npm run lint` — lint
+- `npm run prisma:generate` — generate Prisma client
+- `npm run prisma:push` — push schema to local DB
+- `npm run prisma:seed` — seed demo data
