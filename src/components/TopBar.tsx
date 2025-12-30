@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 export function TopBar() {
   const [lang, setLang] = useState<"en" | "fr">("en");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   const copy = useMemo(() => {
     if (lang === "fr") {
@@ -20,11 +20,16 @@ export function TopBar() {
   }, [lang]);
 
   useEffect(() => {
-    // Load saved preferences
+    // Load saved preferences - default to dark mode
     const savedTheme = window.localStorage.getItem("apex_theme");
     const savedLang = window.localStorage.getItem("apex_lang") as "en" | "fr" | null;
 
-    if (savedTheme === "dark") {
+    // Default to dark mode if no preference saved
+    if (savedTheme === "light") {
+      setTheme("light");
+      document.documentElement.dataset.theme = "light";
+    } else {
+      // Default to dark
       setTheme("dark");
       document.documentElement.dataset.theme = "dark";
     }

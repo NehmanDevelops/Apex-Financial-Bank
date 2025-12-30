@@ -20,15 +20,20 @@ export function LandingClient() {
   const [state, action, pending] = useActionState(createAccount, initialState);
 
   const [lang, setLang] = useState<"en" | "fr">("en");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
-  // Load saved preferences on mount
+  // Load saved preferences on mount - default to dark mode
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("apex_theme");
       const savedLang = localStorage.getItem("apex_lang") as "en" | "fr" | null;
 
-      if (savedTheme === "dark") {
+      // Default to dark mode if no preference saved
+      if (savedTheme === "light") {
+        setTheme("light");
+        document.documentElement.dataset.theme = "light";
+      } else {
+        // Default to dark
         setTheme("dark");
         document.documentElement.dataset.theme = "dark";
       }
