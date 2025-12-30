@@ -14,7 +14,7 @@ function LoginForm() {
   const callbackUrl = useMemo(() => searchParams.get("callbackUrl") ?? "/dashboard", [searchParams]);
 
   const [email, setEmail] = useState("demo@apex.ca");
-  const [password, setPassword] = useState("password123");
+  const [password, setPassword] = useState("ApexSecure2025!");
   const [lang, setLang] = useState<"en" | "fr">("en");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +136,7 @@ function LoginForm() {
 
           <div className="mt-6 text-center text-xs text-slate-500">
             Demo: <span className="font-medium text-slate-700">demo@apex.ca</span> /{" "}
-            <span className="font-medium text-slate-700">password123</span>
+            <span className="font-medium text-slate-700">ApexSecure2025!</span>
           </div>
         </div>
       </div>
