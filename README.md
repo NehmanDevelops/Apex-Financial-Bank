@@ -1,53 +1,73 @@
-# 🏦 Apex Financial - Demo Banking Application
+# 🏦 Apex Financial - Modern Banking Demo
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000?style=for-the-badge&logo=vercel)](https://vercel.com/)
 
-A modern, fully-featured banking demo application built to showcase frontend development skills. Features realistic banking workflows, beautiful UI/UX, and complete interactivity.
+A **full-featured banking demo application** showcasing modern frontend development skills. Built with Next.js 16, TypeScript, and Tailwind CSS with a focus on **premium UI/UX**, **realistic banking workflows**, and **complete interactivity**.
 
-![Dashboard Preview](https://via.placeholder.com/800x400/0b6aa9/ffffff?text=Apex+Financial+Dashboard)
+---
 
 ## ✨ Features
 
-### 💳 Dashboard & Account Management
-- **Visual Credit Card UI** - Realistic card designs with gradients, chips, and Mastercard branding
-- **Real-time Balance Display** - Toggle privacy mode to hide sensitive information
-- **Multi-account Support** - Chequing, Savings, and Credit Card accounts
+### 🔐 Authentication System
+- Secure demo login with credential validation
+- Session persistence with localStorage
+- Automatic redirect protection for authenticated routes
+
+### 💳 Dashboard & Accounts
+- **Visual Credit Card UI** - Realistic card designs with chip, gradients, and Mastercard branding
+- **Multi-account Display** - Chequing, Savings, and Credit Card accounts
+- **Privacy Mode** - Toggle to hide sensitive balance information
+- **Personalized Greeting** - Time-based welcome messages
 
 ### 📊 Spending Insights
-- **Interactive Pie Charts** - Visual breakdown of spending by category
-- **Budget Tracking** - Progress bars showing monthly spending vs budget
-- **Transaction Categorization** - Automatic categorization of transactions
+- **Interactive Pie Chart** - SVG-based spending breakdown by category
+- **Budget Tracking** - Visual progress bar for monthly budget
+- **Category Analysis** - Color-coded spending categories with percentages
+- **Recent Transactions** - Categorized transaction list
 
 ### 💸 e-Transfer System
-- **Send Money** - Full e-Transfer flow with recipient management
-- **Inbox** - Pending transfers with deposit functionality
-- **Real-time Updates** - Instant balance updates
+- **Send Money Flow** - Complete form → confirmation → success flow
+- **Recent Contacts** - Quick-select from saved contacts
+- **Inbox** - View and deposit pending transfers
+- **Real-time Updates** - Balance updates after transfers
 
 ### 📋 Bill Pay & Disputes
 - **Scheduled Payments** - View and manage upcoming bills
-- **Transaction Disputes** - Open and resolve dispute cases
-- **Payment History** - Track past payments
+- **Dispute Management** - Open and resolve transaction disputes
+- **Status Tracking** - Visual status indicators
 
 ### 🧪 Test Board (For Recruiters)
 - **One-Click Demo Data** - Seed realistic transactions, contacts, and payees
 - **Flow Triggers** - Create incoming e-Transfers, schedule bills, open disputes
-- **Quick Navigation** - Jump to any module instantly
+- **Real Persistence** - All data persists across navigation
 
-## 🛠️ Tech Stack
+### 🌙 Dark Mode
+- **System-wide Toggle** - Works on login and all authenticated pages
+- **Smooth Transitions** - Animated color transitions
+- **Preference Persistence** - Saved to localStorage
 
-| Category | Technology |
-|----------|------------|
-| **Framework** | Next.js 16 (App Router) |
-| **Language** | TypeScript |
-| **Styling** | Tailwind CSS |
-| **Charts** | Recharts + Custom SVG |
-| **State** | React Hooks + localStorage |
-| **Deployment** | Vercel |
+### 🌐 Internationalization (i18n)
+- **English/French Toggle** - Full translation support
+- **Sidebar Translation** - All navigation items in French
+- **Header Translation** - Localized security messages
 
-## 🚀 Getting Started
+### ⚡ Quick Actions
+- **Floating Action Button (FAB)** - Quick access to common actions
+- **Animated Menu** - Backdrop blur with smooth transitions
+- **Direct Navigation** - Jump to e-Transfer, Bill Pay, Insights
+
+### 🎨 Premium UI/UX
+- **Custom Scrollbar** - Styled scrollbars for polished look
+- **Hover Effects** - Scale and shadow transitions on cards
+- **Loading Skeletons** - Smooth loading states
+- **Responsive Design** - Works on desktop and mobile
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 # Clone the repository
@@ -63,52 +83,89 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and login with:
-- **Email:** `demo@apex.ca`
-- **Password:** `ApexSecure2025!`
+Open [http://localhost:3000](http://localhost:3000) and log in with:
+
+| Field | Value |
+|-------|-------|
+| **Email** | `demo@apex.ca` |
+| **Password** | `ApexSecure2025!` |
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS |
+| **Charts** | Recharts + Custom SVG |
+| **State Management** | React Hooks + localStorage |
+| **Deployment** | Vercel |
+
+---
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── app/
-│   ├── (app)/           # Authenticated routes
-│   │   ├── dashboard/   # Main dashboard
-│   │   ├── accounts/    # Account details
-│   │   ├── insights/    # Spending analytics
-│   │   ├── etransfer/   # e-Transfer send/inbox
-│   │   ├── bill-pay/    # Bill payments
-│   │   ├── disputes/    # Transaction disputes
-│   │   └── test-board/  # Recruiter demo tools
-│   └── (auth)/          # Login/MFA pages
-├── components/          # Reusable UI components
+│   ├── (app)/              # Authenticated routes
+│   │   ├── dashboard/      # Main dashboard with cards
+│   │   ├── accounts/       # Account details
+│   │   ├── insights/       # Spending analytics & charts
+│   │   ├── etransfer/      # Send & receive money
+│   │   ├── bill-pay/       # Bill payments
+│   │   ├── disputes/       # Transaction disputes
+│   │   ├── test-board/     # Recruiter demo tools
+│   │   └── settings/       # User preferences
+│   └── (auth)/             # Login page
+├── components/
+│   ├── Sidebar.tsx         # Navigation with i18n
+│   ├── TopBar.tsx          # Header with theme/lang toggle
+│   ├── Footer.tsx          # Credits & links
+│   ├── QuickActions.tsx    # Floating action button
+│   └── ...
 └── lib/
-    └── demoStore.ts     # Client-side state management
+    └── demoStore.ts        # Client-side state management
 ```
+
+---
 
 ## 🎨 Design Highlights
 
-- **Modern Gradients** - Beautiful gradient backgrounds on cards and buttons
-- **Micro-animations** - Hover effects, scale transitions, and loading states
-- **Consistent Design System** - Cohesive color palette and typography
-- **Responsive Layout** - Works on desktop and mobile devices
-- **Accessibility** - Semantic HTML and proper ARIA attributes
+- **Modern Gradients** - Beautiful gradient backgrounds on cards
+- **Micro-animations** - Hover effects, scale transitions, loading states
+- **Consistent Design System** - Cohesive color palette based on RBC branding
+- **Accessibility** - Semantic HTML and keyboard navigation
+- **Dark Mode** - Full dark theme support
+
+---
 
 ## 📸 Screenshots
 
 ### Dashboard with Visual Cards
-The dashboard features realistic credit card designs with chip effects, proper branding, and hover animations.
+Beautiful credit card designs with realistic chip and gradient effects.
 
 ### Spending Insights
-Interactive pie charts show spending breakdown by category with animated progress bars.
+Interactive pie chart with category-wise spending breakdown.
 
-### Test Board
-One-click buttons to generate demo data and test all application features.
+### e-Transfer Flow
+Complete send flow with form validation and success animation.
+
+---
+
+## 🔗 Links
+
+- **Live Demo**: Deployed on Vercel
+- **Repository**: [github.com/NehmanDevelops/Apex-Financial-Bank](https://github.com/NehmanDevelops/Apex-Financial-Bank)
+
+---
 
 ## 👨‍💻 Author
 
-**Nehman Develops**
-- GitHub: [@NehmanDevelops](https://github.com/NehmanDevelops)
+**Nehman Develops**  
+GitHub: [@NehmanDevelops](https://github.com/NehmanDevelops)
 
 ---
 
