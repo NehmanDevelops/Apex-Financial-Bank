@@ -17,61 +17,79 @@ import {
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
 import type { ComponentType } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
 
 type NavItem = {
   href: string;
-  label: string;
+  labelEn: string;
+  labelFr: string;
   icon: ComponentType<{ className?: string }>;
 };
 
 type NavGroup = {
   id: string;
-  label: string;
+  labelEn: string;
+  labelFr: string;
   icon: ComponentType<{ className?: string }>;
   items: NavItem[];
 };
 
 const primary: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/accounts", label: "Accounts", icon: CreditCard },
-  { href: "/move-money", label: "Move Money", icon: ArrowLeftRight },
-  { href: "/bill-pay", label: "Bill Pay", icon: Receipt },
+  { href: "/dashboard", labelEn: "Dashboard", labelFr: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/accounts", labelEn: "Accounts", labelFr: "Comptes", icon: CreditCard },
+  { href: "/move-money", labelEn: "Move Money", labelFr: "Transférer", icon: ArrowLeftRight },
+  { href: "/bill-pay", labelEn: "Bill Pay", labelFr: "Factures", icon: Receipt },
 ];
 
 const groups: NavGroup[] = [
   {
     id: "etransfer",
-    label: "e-Transfer",
+    labelEn: "e-Transfer",
+    labelFr: "Virement",
     icon: Mail,
     items: [
-      { href: "/etransfer/send", label: "Send", icon: Mail },
-      { href: "/etransfer/inbox", label: "Inbox", icon: Mail },
+      { href: "/etransfer/send", labelEn: "Send", labelFr: "Envoyer", icon: Mail },
+      { href: "/etransfer/inbox", labelEn: "Inbox", labelFr: "Boîte de réception", icon: Mail },
     ],
   },
   {
     id: "insights",
-    label: "Insights & Cases",
+    labelEn: "Insights & Cases",
+    labelFr: "Analyses & Cas",
     icon: PieChart,
     items: [
-      { href: "/insights", label: "Insights", icon: PieChart },
-      { href: "/disputes", label: "Disputes", icon: ShieldAlert },
+      { href: "/insights", labelEn: "Insights", labelFr: "Analyses", icon: PieChart },
+      { href: "/disputes", labelEn: "Disputes", labelFr: "Litiges", icon: ShieldAlert },
     ],
   },
   {
     id: "admin",
-    label: "Admin",
+    labelEn: "Admin",
+    labelFr: "Admin",
     icon: Receipt,
     items: [
-      { href: "/admin/fraud", label: "Fraud Review", icon: Receipt },
-      { href: "/test-board", label: "Test Board", icon: ClipboardCheck },
+      { href: "/admin/fraud", labelEn: "Fraud Review", labelFr: "Révision fraude", icon: Receipt },
+      { href: "/test-board", labelEn: "Test Board", labelFr: "Tableau de test", icon: ClipboardCheck },
     ],
   },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const [lang, setLang] = useState<"en" | "fr">("en");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("apex_lang") as "en" | "fr" | null;
+    if (saved === "fr" || saved === "en") {
+      setLang(saved);
+    }
+  }, []);
+
+  const getLabel = (item: NavItem | NavGroup) => {
+    return lang === "fr" ? item.labelFr : item.labelEn;
+  };
+
   const initialOpen = useMemo(() => {
     const next: Record<string, boolean> = {
       etransfer: pathname.startsWith("/etransfer"),
@@ -95,7 +113,9 @@ export function Sidebar({ className }: { className?: string }) {
           <Image src="/apexfinancial.png" alt="Apex Financial" width={28} height={28} priority className="rounded" />
           <div>
             <div className="text-base font-semibold tracking-tight">Apex Financial</div>
-            <div className="mt-0.5 text-xs text-slate-500">Customer Portal</div>
+            <div className="mt-0.5 text-xs text-slate-500">
+              {lang === "fr" ? "Portail client" : "Customer Portal"}
+            </div>
           </div>
         </div>
       </div>
@@ -114,7 +134,7 @@ export function Sidebar({ className }: { className?: string }) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
+                <span>{getLabel(item)}</span>
               </Link>
             );
           })}
@@ -138,7 +158,7 @@ export function Sidebar({ className }: { className?: string }) {
                 >
                   <span className="flex items-center gap-3">
                     <GroupIcon className="h-4 w-4" />
-                    {g.label}
+                    {getLabel(g)}
                   </span>
                   <ChevronDown className={clsx("h-4 w-4 text-slate-500 transition-transform", isOpen ? "rotate-180" : "")} />
                 </button>
@@ -158,7 +178,7 @@ export function Sidebar({ className }: { className?: string }) {
                           )}
                         >
                           <Icon className="h-4 w-4" />
-                          <span>{item.label}</span>
+                          <span>{getLabel(item)}</span>
                         </Link>
                       );
                     })}
@@ -176,7 +196,7 @@ export function Sidebar({ className }: { className?: string }) {
             )}
           >
             <Settings className="h-4 w-4" />
-            <span>Settings</span>
+            <span>{lang === "fr" ? "Paramètres" : "Settings"}</span>
           </Link>
         </div>
       </nav>

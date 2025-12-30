@@ -20,11 +20,34 @@ export function TopBar() {
   }, [lang]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("apex_theme");
-    const next = saved === "dark" ? "dark" : "light";
-    setTheme(next);
-    document.documentElement.dataset.theme = next;
+    // Load saved preferences
+    const savedTheme = window.localStorage.getItem("apex_theme");
+    const savedLang = window.localStorage.getItem("apex_lang") as "en" | "fr" | null;
+
+    if (savedTheme === "dark") {
+      setTheme("dark");
+      document.documentElement.dataset.theme = "dark";
+    }
+
+    if (savedLang === "fr" || savedLang === "en") {
+      setLang(savedLang);
+    }
   }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    window.localStorage.setItem("apex_theme", next);
+    document.documentElement.dataset.theme = next;
+  };
+
+  const toggleLang = () => {
+    const next = lang === "en" ? "fr" : "en";
+    setLang(next);
+    window.localStorage.setItem("apex_lang", next);
+    // Trigger a page reload to apply translations everywhere
+    window.location.reload();
+  };
 
   return (
     <header className="bg-[#0b6aa9]">
@@ -38,24 +61,17 @@ export function TopBar() {
           <div className="text-xs font-medium text-white/90">{copy.secureOnlineBanking}</div>
           <button
             type="button"
-            onClick={() => {
-              const next = theme === "light" ? "dark" : "light";
-              setTheme(next);
-              if (typeof window !== "undefined") {
-                window.localStorage.setItem("apex_theme", next);
-                document.documentElement.dataset.theme = next;
-              }
-            }}
-            className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15"
+            onClick={toggleTheme}
+            className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
           >
-            {theme === "light" ? "Dark" : "Light"}
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
           </button>
           <button
             type="button"
-            onClick={() => setLang((v) => (v === "en" ? "fr" : "en"))}
-            className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15"
+            onClick={toggleLang}
+            className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
           >
-            {lang === "en" ? "FR" : "EN"}
+            {lang === "en" ? "🇫🇷 FR" : "🇬🇧 EN"}
           </button>
         </div>
       </div>
