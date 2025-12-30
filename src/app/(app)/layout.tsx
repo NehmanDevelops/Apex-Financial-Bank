@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { Footer } from "@/components/Footer";
+import { QuickActions } from "@/components/QuickActions";
 
 export default function AppLayout({
   children,
@@ -42,13 +43,14 @@ export default function AppLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <TopBar />
-      <div className="flex flex-1 bg-slate-50">
+      <div className="flex flex-1 bg-slate-50 dark:bg-slate-900">
         <Sidebar />
         <div className="flex-1">
           <div className="mx-auto w-full max-w-6xl px-8 py-8">{children}</div>
         </div>
       </div>
       <Footer />
+      <QuickActions />
     </div>
   );
 }
