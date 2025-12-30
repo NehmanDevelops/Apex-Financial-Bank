@@ -8,13 +8,15 @@ import { verifyMfa } from "@/actions/mfa";
 type Result =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
+    ok: false;
+    message: string;
+  };
 
 const initial: Result | null = null;
 
-export default function MfaPage() {
+import { Suspense } from "react";
+
+function MfaForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
@@ -88,5 +90,13 @@ export default function MfaPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MfaPage() {
+  return (
+    <Suspense>
+      <MfaForm />
+    </Suspense>
   );
 }
