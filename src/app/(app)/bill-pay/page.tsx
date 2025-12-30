@@ -48,10 +48,11 @@ export default function BillPayPage() {
           {scheduled.length > 0 ? (
             <div className="mt-4 space-y-3">
               {scheduled.map((bill) => (
-                <div key={bill.id} className="flex items-center justify-between rounded-lg bg-amber-50 px-4 py-3">
+                <div key={bill.id} className="flex items-center justify-between rounded-lg bg-amber-50 px-4 py-3 border border-amber-200">
                   <div>
-                    <div className="font-medium text-slate-900">{bill.payee}</div>
-                    <div className="text-sm text-slate-500">Due {bill.dueDate}</div>
+                    {/* Use inline style to ensure text is always dark on light background */}
+                    <div className="font-medium" style={{ color: '#1e293b' }}>{bill.payee}</div>
+                    <div className="text-sm" style={{ color: '#64748b' }}>Due {bill.dueDate}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="font-semibold text-amber-700">{formatMoney(bill.amount)}</div>
@@ -74,13 +75,14 @@ export default function BillPayPage() {
             <h2 className="text-lg font-semibold text-slate-900">Recently Paid ({paid.length})</h2>
             <div className="mt-4 space-y-3">
               {paid.slice(0, 5).map((bill) => (
-                <div key={bill.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+                <div key={bill.id} className="flex items-center justify-between rounded-lg bg-slate-100 px-4 py-3 border border-slate-200">
                   <div>
-                    <div className="font-medium text-slate-900">{bill.payee}</div>
-                    <div className="text-sm text-slate-500">{bill.dueDate}</div>
+                    {/* Use inline style to ensure text is always dark on light background */}
+                    <div className="font-medium" style={{ color: '#1e293b' }}>{bill.payee}</div>
+                    <div className="text-sm" style={{ color: '#64748b' }}>{bill.dueDate}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="font-semibold text-slate-600">{formatMoney(bill.amount)}</div>
+                    <div className="font-semibold" style={{ color: '#475569' }}>{formatMoney(bill.amount)}</div>
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
                       Paid
                     </span>
