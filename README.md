@@ -1,72 +1,115 @@
-# Apex Financial (Banking Demo)
+# 🏦 Apex Financial - Demo Banking Application
 
-Full‑stack banking demo app built to showcase product flows recruiters/interviewers can click through quickly.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
-## Highlights
+A modern, fully-featured banking demo application built to showcase frontend development skills. Features realistic banking workflows, beautiful UI/UX, and complete interactivity.
 
-- **Core banking**: accounts, transactions, transfers
-- **Interac e‑Transfer**: send / inbox, accept/decline, auto‑deposit settings
-- **Bill Pay**: payees, scheduled payments, “run due payments”
-- **Spending Insights**: categories, budgets, 6‑month trend
-- **Disputes**: open a dispute case against a transaction
-- **Security**: MFA (TOTP), trusted devices, inactivity auto‑logout
-- **Recruiter Test Board**: one page to seed data + trigger flows
+![Dashboard Preview](https://via.placeholder.com/800x400/0b6aa9/ffffff?text=Apex+Financial+Dashboard)
 
-## Tech Stack
+## ✨ Features
 
-- Next.js (App Router)
-- NextAuth (Credentials)
-- Prisma + SQLite
-- Tailwind CSS
+### 💳 Dashboard & Account Management
+- **Visual Credit Card UI** - Realistic card designs with gradients, chips, and Mastercard branding
+- **Real-time Balance Display** - Toggle privacy mode to hide sensitive information
+- **Multi-account Support** - Chequing, Savings, and Credit Card accounts
 
-## Quick Start (Local)
+### 📊 Spending Insights
+- **Interactive Pie Charts** - Visual breakdown of spending by category
+- **Budget Tracking** - Progress bars showing monthly spending vs budget
+- **Transaction Categorization** - Automatic categorization of transactions
+
+### 💸 e-Transfer System
+- **Send Money** - Full e-Transfer flow with recipient management
+- **Inbox** - Pending transfers with deposit functionality
+- **Real-time Updates** - Instant balance updates
+
+### 📋 Bill Pay & Disputes
+- **Scheduled Payments** - View and manage upcoming bills
+- **Transaction Disputes** - Open and resolve dispute cases
+- **Payment History** - Track past payments
+
+### 🧪 Test Board (For Recruiters)
+- **One-Click Demo Data** - Seed realistic transactions, contacts, and payees
+- **Flow Triggers** - Create incoming e-Transfers, schedule bills, open disputes
+- **Quick Navigation** - Jump to any module instantly
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS |
+| **Charts** | Recharts + Custom SVG |
+| **State** | React Hooks + localStorage |
+| **Deployment** | Vercel |
+
+## 🚀 Getting Started
 
 ```bash
+# Clone the repository
+git clone https://github.com/NehmanDevelops/Apex-Financial-Bank.git
+
+# Navigate to the project
+cd apex-financial
+
+# Install dependencies
 npm install
-npm run prisma:generate
-npm run prisma:push
-npm run prisma:seed
+
+# Run the development server
 npm run dev
 ```
 
-App: http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000) and login with:
+- **Email:** `demo@apex.ca`
+- **Password:** `ApexSecure2025!`
 
-## Demo Login
+## 📁 Project Structure
 
-- Email: `demo@apex.ca`
-- Password: (see `prisma/seed.ts`)
+```
+src/
+├── app/
+│   ├── (app)/           # Authenticated routes
+│   │   ├── dashboard/   # Main dashboard
+│   │   ├── accounts/    # Account details
+│   │   ├── insights/    # Spending analytics
+│   │   ├── etransfer/   # e-Transfer send/inbox
+│   │   ├── bill-pay/    # Bill payments
+│   │   ├── disputes/    # Transaction disputes
+│   │   └── test-board/  # Recruiter demo tools
+│   └── (auth)/          # Login/MFA pages
+├── components/          # Reusable UI components
+└── lib/
+    └── demoStore.ts     # Client-side state management
+```
 
-## Recruiter / Interviewer Test Board
+## 🎨 Design Highlights
 
-The Test Board is available at:
+- **Modern Gradients** - Beautiful gradient backgrounds on cards and buttons
+- **Micro-animations** - Hover effects, scale transitions, and loading states
+- **Consistent Design System** - Cohesive color palette and typography
+- **Responsive Layout** - Works on desktop and mobile devices
+- **Accessibility** - Semantic HTML and proper ARIA attributes
 
-- `/test-board`
+## 📸 Screenshots
 
-It is **gated** to avoid appearing for normal users. It shows up if:
+### Dashboard with Visual Cards
+The dashboard features realistic credit card designs with chip effects, proper branding, and hover animations.
 
-- You are logged in as `demo@apex.ca`, or
-- `NEXT_PUBLIC_ENABLE_TEST_BOARD=true`
+### Spending Insights
+Interactive pie charts show spending breakdown by category with animated progress bars.
 
-Once you can access it, you can:
+### Test Board
+One-click buttons to generate demo data and test all application features.
 
-- Seed demo data (contacts, payees, categories, transactions)
-- Generate an incoming e‑Transfer
-- Create a scheduled bill payment
-- Create a dispute case
+## 👨‍💻 Author
 
-## Environment Variables
+**Nehman Develops**
+- GitHub: [@NehmanDevelops](https://github.com/NehmanDevelops)
 
-Create a `.env` file (SQLite is used by default). Common vars:
+---
 
-- `NEXTAUTH_URL=http://localhost:3000`
-- `NEXTAUTH_SECRET=...`
-- `NEXT_PUBLIC_ENABLE_TEST_BOARD=true` (optional)
-
-## Scripts
-
-- `npm run dev` — start dev server
-- `npm run build` — production build
-- `npm run lint` — lint
-- `npm run prisma:generate` — generate Prisma client
-- `npm run prisma:push` — push schema to local DB
-- `npm run prisma:seed` — seed demo data
+*This is a demo project created for portfolio purposes. Not affiliated with any real financial institution.*
