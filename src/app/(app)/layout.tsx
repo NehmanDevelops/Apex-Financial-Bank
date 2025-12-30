@@ -1,35 +1,46 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/Sidebar";
-import { authOptions } from "@/lib/auth";
-import { TopBar } from "@/components/TopBar";
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { InactivityLogout } from "@/components/InactivityLogout";
+"use client";
 
-export default async function AppLayout({
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Sidebar } from "@/components/Sidebar";
+import { TopBar } from "@/components/TopBar";
+
+export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/");
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  const deviceId = (await cookies()).get("apex_device")?.value;
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (user?.mfaEnabled && user.mfaSecret) {
-    if (!deviceId) redirect("/mfa");
-    const trusted = await prisma.trustedDevice.findUnique({
-      where: { userId_deviceId: { userId: user.id, deviceId } },
-    });
-    if (!trusted) redirect("/mfa");
-    await prisma.trustedDevice.update({ where: { id: trusted.id }, data: { lastSeenAt: new Date() } });
+  useEffect(() => {
+    // Check localStorage for demo session
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn === "true") {
+        setIsAuthenticated(true);
+      } else {
+        router.push("/login");
+      }
+    }
+  }, [router]);
+
+  // Show nothing while checking auth
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (
     <div className="min-h-screen">
       <TopBar />
-      <InactivityLogout />
       <div className="flex min-h-[calc(100vh-56px)] bg-slate-50">
         <Sidebar />
         <div className="flex-1">
