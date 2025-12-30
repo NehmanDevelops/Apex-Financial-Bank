@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getDisputes, DemoDispute } from "@/lib/demoStore";
+import { getDisputes, addDispute, getLatestDebit, DemoDispute } from "@/lib/demoStore";
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-CA", {
@@ -16,6 +16,7 @@ export default function DisputesPage() {
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [disputes, setDisputes] = useState<DemoDispute[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,6 +30,37 @@ export default function DisputesPage() {
     }
   }, [router]);
 
+  function handleResolve(dispute: DemoDispute) {
+    // Update the dispute status in localStorage
+    const allDisputes = getDisputes();
+    const index = allDisputes.findIndex(d => d.id === dispute.id);
+    if (index !== -1) {
+      allDisputes[index].status = "RESOLVED";
+      localStorage.setItem("demo-disputes", JSON.stringify(allDisputes));
+      setDisputes([...allDisputes]);
+      setToast(`Dispute for "${dispute.transactionDescription}" has been resolved!`);
+      setTimeout(() => setToast(null), 3000);
+    }
+  }
+
+  function handleCreateDispute() {
+    const latestDebit = getLatestDebit();
+    if (latestDebit) {
+      addDispute({
+        transactionDescription: latestDebit.description,
+        amount: latestDebit.amount,
+        date: new Date().toISOString(),
+        status: "OPEN",
+        reason: "Unrecognized transaction",
+      });
+      setDisputes(getDisputes());
+      setToast(`Created dispute for "${latestDebit.description}" ($${latestDebit.amount.toFixed(2)})!`);
+    } else {
+      setToast("No debit transactions found to dispute!");
+    }
+    setTimeout(() => setToast(null), 3000);
+  }
+
   if (!isLoaded) {
     return <div className="py-20 text-center text-slate-500">Loading...</div>;
   }
@@ -41,6 +73,15 @@ export default function DisputesPage() {
       <div className="text-sm font-medium text-slate-500">Disputes</div>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Transaction Disputes</h1>
       <p className="mt-2 text-sm text-slate-600">Manage and track your dispute cases.</p>
+
+      <div className="mt-6">
+        <button
+          onClick={handleCreateDispute}
+          className="rounded-lg bg-[#0b6aa9] px-4 py-2 text-sm font-medium text-white hover:bg-[#095f98]"
+        >
+          + Open New Dispute
+        </button>
+      </div>
 
       <div className="mt-8 space-y-6">
         {open.length > 0 ? (
@@ -57,9 +98,12 @@ export default function DisputesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="font-semibold text-red-600">{formatMoney(dispute.amount)}</div>
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-                      Open
-                    </span>
+                    <button
+                      onClick={() => handleResolve(dispute)}
+                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+                    >
+                      Resolve
+                    </button>
                   </div>
                 </div>
               ))}
@@ -79,7 +123,7 @@ export default function DisputesPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Resolved ({resolved.length})</h2>
             <div className="mt-4 space-y-3">
-              {resolved.slice(0, 5).map((dispute) => (
+              {resolved.map((dispute) => (
                 <div key={dispute.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
                   <div>
                     <div className="font-medium text-slate-900">{dispute.transactionDescription}</div>
@@ -97,6 +141,12 @@ export default function DisputesPage() {
           </div>
         )}
       </div>
+
+      {toast && (
+        <div className="fixed bottom-4 left-4 right-4 mx-auto max-w-md rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-lg md:bottom-6 md:left-auto md:right-6">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
