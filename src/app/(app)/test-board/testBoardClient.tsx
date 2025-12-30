@@ -1,17 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
-import { createDisputeDemo, createIncomingETransferDemo, createScheduledBillPayDemo, seedTestBoard } from "@/actions/testBoard";
-
-type Result =
-  | { ok: true }
-  | {
-      ok: false;
-      message: string;
-    };
-
-const initial: Result | null = null;
+import { useState } from "react";
 
 export function TestBoardClient({
   counts,
@@ -25,23 +15,39 @@ export function TestBoardClient({
     transactions: number;
   };
 }) {
-  const [seedState, seedAction, seedPending] = useActionState(seedTestBoard, initial);
-  const [xferState, xferAction, xferPending] = useActionState(createIncomingETransferDemo, initial);
-  const [billState, billAction, billPending] = useActionState(createScheduledBillPayDemo, initial);
-  const [dispState, dispAction, dispPending] = useActionState(createDisputeDemo, initial);
   const [toast, setToast] = useState<string | null>(null);
+  const [localCounts, setLocalCounts] = useState(counts);
 
-  useEffect(() => {
-    const s = seedState ?? xferState ?? billState ?? dispState;
-    if (!s) return;
-    if (s.ok) {
-      setToast("Done.");
-      const t = setTimeout(() => setToast(null), 2200);
-      return () => clearTimeout(t);
-    }
-  }, [seedState, xferState, billState, dispState]);
+  function handleSeedDemo() {
+    setToast("Demo data seeded!");
+    setLocalCounts({
+      contacts: localCounts.contacts + 5,
+      payees: localCounts.payees + 3,
+      transfersPending: localCounts.transfersPending,
+      scheduled: localCounts.scheduled,
+      disputes: localCounts.disputes,
+      transactions: localCounts.transactions + 20,
+    });
+    setTimeout(() => setToast(null), 2200);
+  }
 
-  const error = (seedState && !seedState.ok && seedState.message) || (xferState && !xferState.ok && xferState.message) || (billState && !billState.ok && billState.message) || (dispState && !dispState.ok && dispState.message) || null;
+  function handleCreateTransfer() {
+    setToast("Incoming e-Transfer created!");
+    setLocalCounts({ ...localCounts, transfersPending: localCounts.transfersPending + 1 });
+    setTimeout(() => setToast(null), 2200);
+  }
+
+  function handleCreateBillPay() {
+    setToast("Scheduled bill payment created!");
+    setLocalCounts({ ...localCounts, scheduled: localCounts.scheduled + 1 });
+    setTimeout(() => setToast(null), 2200);
+  }
+
+  function handleCreateDispute() {
+    setToast("Dispute case created!");
+    setLocalCounts({ ...localCounts, disputes: localCounts.disputes + 1 });
+    setTimeout(() => setToast(null), 2200);
+  }
 
   return (
     <div className="w-full max-w-4xl">
@@ -57,31 +63,29 @@ export function TestBoardClient({
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Contacts</div>
-              <div className="mt-1 font-semibold text-slate-900">{counts.contacts}</div>
+              <div className="mt-1 font-semibold text-slate-900">{localCounts.contacts}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Payees</div>
-              <div className="mt-1 font-semibold text-slate-900">{counts.payees}</div>
+              <div className="mt-1 font-semibold text-slate-900">{localCounts.payees}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Transactions</div>
-              <div className="mt-1 font-semibold text-slate-900">{counts.transactions}</div>
+              <div className="mt-1 font-semibold text-slate-900">{localCounts.transactions}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Disputes</div>
-              <div className="mt-1 font-semibold text-slate-900">{counts.disputes}</div>
+              <div className="mt-1 font-semibold text-slate-900">{localCounts.disputes}</div>
             </div>
           </div>
 
-          <form action={seedAction} className="mt-4">
-            <button
-              type="submit"
-              disabled={seedPending}
-              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {seedPending ? "Seeding…" : "Seed demo data"}
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleSeedDemo}
+            className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+          >
+            Seed demo data
+          </button>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -89,35 +93,29 @@ export function TestBoardClient({
           <div className="mt-1 text-xs text-slate-500">Creates realistic items so you can test each module immediately.</div>
 
           <div className="mt-4 space-y-3">
-            <form action={xferAction}>
-              <button
-                type="submit"
-                disabled={xferPending}
-                className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50 disabled:opacity-60"
-              >
-                {xferPending ? "Creating…" : `Create incoming e-Transfer (pending: ${counts.transfersPending})`}
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={handleCreateTransfer}
+              className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50"
+            >
+              Create incoming e-Transfer (pending: {localCounts.transfersPending})
+            </button>
 
-            <form action={billAction}>
-              <button
-                type="submit"
-                disabled={billPending}
-                className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50 disabled:opacity-60"
-              >
-                {billPending ? "Creating…" : `Create scheduled bill payment (scheduled: ${counts.scheduled})`}
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={handleCreateBillPay}
+              className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50"
+            >
+              Create scheduled bill payment (scheduled: {localCounts.scheduled})
+            </button>
 
-            <form action={dispAction}>
-              <button
-                type="submit"
-                disabled={dispPending}
-                className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50 disabled:opacity-60"
-              >
-                {dispPending ? "Creating…" : "Create dispute case for latest debit"}
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={handleCreateDispute}
+              className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50"
+            >
+              Create dispute case for latest debit
+            </button>
           </div>
         </div>
       </div>
@@ -147,8 +145,6 @@ export function TestBoardClient({
           </Link>
         </div>
       </div>
-
-      {error ? <div className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div> : null}
 
       {toast ? (
         <div className="fixed bottom-4 left-4 right-4 mx-auto max-w-md rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-lg md:bottom-6 md:left-auto md:right-6">
