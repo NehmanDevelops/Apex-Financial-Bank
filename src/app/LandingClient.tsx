@@ -9,9 +9,9 @@ import { createAccount } from "@/actions/createAccount";
 type CreateAccountResult =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
+    ok: false;
+    message: string;
+  };
 
 const initialState: CreateAccountResult | null = null;
 
@@ -28,7 +28,7 @@ export function LandingClient() {
   const [password, setPassword] = useState("");
 
   const [loginEmail, setLoginEmail] = useState("demo@apex.ca");
-  const [loginPassword, setLoginPassword] = useState("password123");
+  const [loginPassword, setLoginPassword] = useState("ApexSecure2025!");
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -101,42 +101,37 @@ export function LandingClient() {
     setLoginLoading(true);
     setLoginError(null);
 
-    const res = await signIn("credentials", {
-      email: loginEmail,
-      password: loginPassword,
-      redirect: false,
-      callbackUrl,
-    });
-
-    setLoginLoading(false);
-
-    if (!res || res.error) {
+    // Simple demo login - check credentials client-side
+    if (loginEmail === "demo@apex.ca" && loginPassword === "ApexSecure2025!") {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("demo-logged-in", "true");
+        localStorage.setItem("demo-user", JSON.stringify({
+          id: "demo-user-id",
+          email: "demo@apex.ca",
+          name: "Demo User"
+        }));
+      }
+      router.push("/dashboard");
+    } else {
+      setLoginLoading(false);
       setLoginError(lang === "fr" ? "Identifiant ou mot de passe invalide." : "Invalid email or password.");
-      return;
     }
-
-    router.push(res.url ?? "/dashboard");
   }
 
   async function onDemoLogin() {
     setDemoLoading(true);
     setDemoError(null);
 
-    const res = await signIn("credentials", {
-      email: "demo@apex.ca",
-      password: "password123",
-      redirect: false,
-      callbackUrl,
-    });
-
-    setDemoLoading(false);
-
-    if (!res || res.error) {
-      setDemoError("Demo login failed.");
-      return;
+    // Simple demo login with localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("demo-logged-in", "true");
+      localStorage.setItem("demo-user", JSON.stringify({
+        id: "demo-user-id",
+        email: "demo@apex.ca",
+        name: "Demo User"
+      }));
     }
-
-    router.push(res.url ?? "/dashboard");
+    router.push("/dashboard");
   }
 
   return (
@@ -212,7 +207,7 @@ export function LandingClient() {
 
               <div className="mt-5 rounded-md bg-slate-50 px-4 py-3 text-xs text-slate-600">
                 Demo: <span className="font-semibold text-slate-800">demo@apex.ca</span> /{" "}
-                <span className="font-semibold text-slate-800">password123</span>
+                <span className="font-semibold text-slate-800">ApexSecure2025!</span>
                 {demoError ? <div className="mt-2 text-red-700">{demoError}</div> : null}
                 <button
                   type="button"
