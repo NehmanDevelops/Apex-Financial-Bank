@@ -20,6 +20,15 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) return null;
 
+        // Hardcode demo user for Vercel deployment stability
+        if (email === "demo@apex.ca" && password === "password123") {
+          return {
+            id: "demo-user-id",
+            email: "demo@apex.ca",
+            name: "Demo User",
+          };
+        }
+
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;
 
