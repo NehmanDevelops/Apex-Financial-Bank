@@ -141,8 +141,8 @@ export function DashboardClient({
         <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {accounts.map((a) => (
             <div key={a.id} className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${a.type === "CHEQUING" ? "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900" :
-                a.type === "SAVINGS" ? "bg-gradient-to-br from-emerald-600 via-emerald-500 to-emerald-700" :
-                  "bg-gradient-to-br from-[#0b6aa9] via-[#0d7dc4] to-[#064e7a]"
+              a.type === "SAVINGS" ? "bg-gradient-to-br from-emerald-600 via-emerald-500 to-emerald-700" :
+                "bg-gradient-to-br from-[#0b6aa9] via-[#0d7dc4] to-[#064e7a]"
               }`}>
               {/* Card decorative elements */}
               <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5"></div>
@@ -197,16 +197,16 @@ export function DashboardClient({
           <h2 className="text-base font-semibold text-slate-900">Recent Transactions</h2>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
-            <table className="w-full text-left text-sm">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
+            <table className="w-full text-left text-sm min-w-[500px]">
               <thead className="bg-slate-50 text-xs font-medium text-slate-600">
                 <tr>
-                  <th className="px-5 py-3">Description</th>
-                  <th className="px-5 py-3">Account</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Amount</th>
+                  <th className="px-4 py-3 sm:px-5">Description</th>
+                  <th className="px-4 py-3 sm:px-5 hidden sm:table-cell">Account</th>
+                  <th className="px-4 py-3 sm:px-5 hidden md:table-cell">Date</th>
+                  <th className="px-4 py-3 sm:px-5 hidden sm:table-cell">Status</th>
+                  <th className="px-4 py-3 sm:px-5 text-right">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -215,19 +215,19 @@ export function DashboardClient({
                   const amountText = privacyMode ? "****.**" : formatMoney(positive ? t.amount : -t.amount);
                   return (
                     <tr key={t.id} className="text-slate-700">
-                      <td className="px-5 py-3 font-medium text-slate-900">
+                      <td className="px-4 py-3 sm:px-5 font-medium text-slate-900">
                         <Link href={`/transactions/${t.id}`} className="hover:underline">
                           {t.description}
                         </Link>
                       </td>
-                      <td className="px-5 py-3">{labelAccountType(t.accountType)}</td>
-                      <td className="px-5 py-3">{new Date(t.date).toLocaleDateString("en-CA")}</td>
-                      <td className="px-5 py-3">
+                      <td className="px-4 py-3 sm:px-5 hidden sm:table-cell">{labelAccountType(t.accountType)}</td>
+                      <td className="px-4 py-3 sm:px-5 hidden md:table-cell">{new Date(t.date).toLocaleDateString("en-CA")}</td>
+                      <td className="px-4 py-3 sm:px-5 hidden sm:table-cell">
                         <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
                           {t.status}
                         </span>
                       </td>
-                      <td className={"px-5 py-3 text-right font-semibold " + (positive ? "text-emerald-600" : "text-red-600")}>
+                      <td className={"px-4 py-3 sm:px-5 text-right font-semibold " + (positive ? "text-emerald-600" : "text-red-600")}>
                         {amountText}
                       </td>
                     </tr>

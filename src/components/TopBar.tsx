@@ -56,27 +56,27 @@ export function TopBar() {
 
   return (
     <header className="bg-[#0b6aa9]">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-3">
-          <Image src="/apexfinancial.png" alt="Apex Financial" width={36} height={36} priority className="rounded" />
-          <div className="text-sm font-semibold tracking-tight text-white">Apex Financial</div>
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6 sm:py-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Image src="/apexfinancial.png" alt="Apex Financial" width={32} height={32} priority className="rounded sm:w-9 sm:h-9" />
+          <div className="text-xs sm:text-sm font-semibold tracking-tight text-white">Apex Financial</div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-xs font-medium text-white/90">{copy.secureOnlineBanking}</div>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="hidden sm:block text-xs font-medium text-white/90">{copy.secureOnlineBanking}</div>
           <button
             type="button"
             onClick={toggleTheme}
             className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
           >
-            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+            {theme === "light" ? "🌙" : "☀️"}<span className="hidden sm:inline"> {theme === "light" ? "Dark" : "Light"}</span>
           </button>
           <button
             type="button"
             onClick={toggleLang}
             className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
           >
-            {lang === "en" ? "🇫🇷 FR" : "🇬🇧 EN"}
+            {lang === "en" ? "🇫🇷" : "🇬🇧"}<span className="hidden sm:inline"> {lang === "en" ? "FR" : "EN"}</span>
           </button>
         </div>
       </div>
