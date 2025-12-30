@@ -1,28 +1,37 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { TestBoardClient } from "./testBoardClient";
 
-export default async function TestBoardPage() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  if (!userId) redirect("/login");
+// Demo counts
+const demoCounts = {
+  contacts: 3,
+  payees: 5,
+  transfersPending: 2,
+  scheduled: 1,
+  disputes: 0,
+  transactions: 15,
+};
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) redirect("/login");
+export default function TestBoardPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const allowed = user.email === "demo@apex.ca" || process.env.NEXT_PUBLIC_ENABLE_TEST_BOARD === "true";
-  if (!allowed) redirect("/dashboard");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn !== "true") {
+        router.push("/login");
+        return;
+      }
+      setIsLoaded(true);
+    }
+  }, [router]);
 
-  const counts = {
-    contacts: await prisma.contact.count({ where: { userId } }),
-    payees: await prisma.payee.count({ where: { userId } }),
-    transfersPending: await prisma.eTransfer.count({ where: { receiverUserId: userId, status: "PENDING" } }),
-    scheduled: await prisma.scheduledPayment.count({ where: { userId, status: "SCHEDULED" } }),
-    disputes: await prisma.dispute.count({ where: { userId } }),
-    transactions: await prisma.transaction.count({ where: { account: { userId } } }),
-  };
+  if (!isLoaded) {
+    return <div className="py-20 text-center text-slate-500">Loading...</div>;
+  }
 
-  return <TestBoardClient counts={counts} />;
+  return <TestBoardClient counts={demoCounts} />;
 }

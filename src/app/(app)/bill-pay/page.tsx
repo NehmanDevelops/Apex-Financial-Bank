@@ -1,92 +1,52 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { BillPayForm } from "./BillPayForm";
+"use client";
 
-function labelAccountType(t: string) {
-  if (t === "CHEQUING") return "Chequing";
-  if (t === "SAVINGS") return "Savings";
-  return "Credit Card";
-}
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function BillPayPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+export default function BillPayPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const accounts = await prisma.account.findMany({
-    where: {
-      userId: session.user.id,
-      type: {
-        in: ["CHEQUING", "SAVINGS"],
-      },
-    },
-    orderBy: { type: "asc" },
-  });
-
-  const payeeCount = await prisma.payee.count({ where: { userId: session.user.id } });
-  if (payeeCount === 0) {
-    const defaults = [
-      { name: "Hydro One", payeeCode: "HYDRO" },
-      { name: "Rogers Communications", payeeCode: "ROGERS" },
-      { name: "Canada Revenue Agency (CRA)", payeeCode: "CRA" },
-      { name: "Enbridge Gas", payeeCode: "ENBRIDGE" },
-      { name: "Toronto Water", payeeCode: "WATER" },
-    ];
-
-    for (const p of defaults) {
-      await prisma.payee.upsert({
-        where: {
-          userId_name: {
-            userId: session.user.id,
-            name: p.name,
-          },
-        },
-        create: {
-          userId: session.user.id,
-          name: p.name,
-          payeeCode: p.payeeCode,
-        },
-        update: {
-          payeeCode: p.payeeCode,
-        },
-      });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn !== "true") {
+        router.push("/login");
+        return;
+      }
+      setIsLoaded(true);
     }
+  }, [router]);
+
+  if (!isLoaded) {
+    return <div className="py-20 text-center text-slate-500">Loading...</div>;
   }
 
-  const payees = await prisma.payee.findMany({
-    where: { userId: session.user.id },
-    orderBy: { name: "asc" },
-  });
-
-  const upcoming = await prisma.scheduledPayment.findMany({
-    where: { userId: session.user.id, status: { in: ["SCHEDULED", "FAILED"] } },
-    include: { payee: true, fromAccount: true },
-    orderBy: { nextRunAt: "asc" },
-    take: 15,
-  });
-
   return (
-    <BillPayForm
-      accounts={accounts.map((a: (typeof accounts)[number]) => ({
-        id: a.id,
-        label: labelAccountType(a.type),
-        balance: a.balance,
-        accountNumber: a.accountNumber,
-      }))}
-      payees={payees.map((p: (typeof payees)[number]) => ({
-        id: p.id,
-        name: p.name,
-      }))}
-      upcoming={upcoming.map((p: (typeof upcoming)[number]) => ({
-        id: p.id,
-        payeeName: p.payee.name,
-        amount: p.amount,
-        nextRunAt: p.nextRunAt.toISOString(),
-        status: p.status,
-        frequency: p.frequency,
-        fromAccountNumber: p.fromAccount.accountNumber,
-      }))}
-    />
+    <div>
+      <div className="text-sm font-medium text-slate-500">Bill Pay</div>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Pay Bills</h1>
+      <p className="mt-2 text-sm text-slate-600">Pay your bills and manage payees.</p>
+
+      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Upcoming Bills</h2>
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+            <div>
+              <div className="font-medium text-slate-900">Hydro Ottawa</div>
+              <div className="text-sm text-slate-500">Due Jan 15</div>
+            </div>
+            <div className="font-semibold text-slate-900">$112.66</div>
+          </div>
+          <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+            <div>
+              <div className="font-medium text-slate-900">Rogers Wireless</div>
+              <div className="text-sm text-slate-500">Due Jan 20</div>
+            </div>
+            <div className="font-semibold text-slate-900">$85.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

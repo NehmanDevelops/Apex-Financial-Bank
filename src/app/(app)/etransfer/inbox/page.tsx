@@ -1,82 +1,51 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { ETransferInboxClient } from "./inboxClient";
+"use client";
 
-function formatMoney(n: number) {
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(n);
-}
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-function labelAccountType(t: string) {
-  if (t === "CHEQUING") return "Chequing";
-  if (t === "SAVINGS") return "Savings";
-  if (t === "CREDIT_CARD") return "Visa Infinite";
-  return t;
-}
+export default function ETransferInboxPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-export default async function ETransferInboxPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn !== "true") {
+        router.push("/login");
+        return;
+      }
+      setIsLoaded(true);
+    }
+  }, [router]);
 
-  const accounts = await prisma.account.findMany({
-    where: { userId: session.user.id },
-    orderBy: { type: "asc" },
-  });
-
-  const settings = await prisma.userSettings.findUnique({ where: { userId: session.user.id } });
-
-  const incoming = await prisma.eTransfer.findMany({
-    where: { receiverUserId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    take: 25,
-    include: {
-      senderUser: { select: { name: true, email: true } },
-    },
-  });
-
-  const sent = await prisma.eTransfer.findMany({
-    where: { senderUserId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    take: 25,
-  });
+  if (!isLoaded) {
+    return <div className="py-20 text-center text-slate-500">Loading...</div>;
+  }
 
   return (
-    <ETransferInboxClient
-      autoDepositEnabled={settings?.autoDepositEnabled ?? false}
-      defaultDepositAccountId={settings?.autoDepositAccountId ?? null}
-      accounts={accounts.map((a: (typeof accounts)[number]) => ({
-        id: a.id,
-        label: labelAccountType(a.type),
-        balance: a.balance,
-        accountNumber: a.accountNumber,
-      }))}
-      incoming={incoming.map((t: (typeof incoming)[number]) => ({
-        id: t.id,
-        status: t.status,
-        amount: t.amount,
-        amountText: formatMoney(t.amount),
-        fromAccountId: t.fromAccountId,
-        toEmail: t.toEmail,
-        toPhone: t.toPhone,
-        memo: t.memo,
-        createdAt: t.createdAt.toISOString(),
-        fromName: t.senderUser?.name ?? null,
-        fromEmail: t.senderUser?.email ?? null,
-      }))}
-      sent={sent.map((t: (typeof sent)[number]) => ({
-        id: t.id,
-        status: t.status,
-        amountText: formatMoney(t.amount),
-        toEmail: t.toEmail,
-        toPhone: t.toPhone,
-        memo: t.memo,
-        createdAt: t.createdAt.toISOString(),
-      }))}
-    />
+    <div>
+      <div className="text-sm font-medium text-slate-500">e-Transfer</div>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Inbox</h1>
+      <p className="mt-2 text-sm text-slate-600">Pending e-Transfers waiting for you.</p>
+
+      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-4 py-3">
+            <div>
+              <div className="font-medium text-slate-900">From: John Smith</div>
+              <div className="text-sm text-slate-500">Received Dec 28</div>
+            </div>
+            <div className="font-semibold text-emerald-600">+$150.00</div>
+          </div>
+          <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-4 py-3">
+            <div>
+              <div className="font-medium text-slate-900">From: Jane Doe</div>
+              <div className="text-sm text-slate-500">Received Dec 27</div>
+            </div>
+            <div className="font-semibold text-emerald-600">+$75.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

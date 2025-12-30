@@ -1,45 +1,58 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { SettingsClient } from "./settingsClient";
+"use client";
 
-function labelAccountType(t: string) {
-  if (t === "CHEQUING") return "Chequing";
-  if (t === "SAVINGS") return "Savings";
-  if (t === "CREDIT_CARD") return "Visa Infinite";
-  return t;
-}
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function SettingsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+export default function SettingsPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const settings = await prisma.userSettings.findUnique({ where: { userId: session.user.id } });
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  const devices = await prisma.trustedDevice.findMany({
-    where: { userId: session.user.id },
-    orderBy: { lastSeenAt: "desc" },
-    take: 25,
-  });
-  const accounts = await prisma.account.findMany({ where: { userId: session.user.id }, orderBy: { type: "asc" } });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn !== "true") {
+        router.push("/login");
+        return;
+      }
+      setIsLoaded(true);
+    }
+  }, [router]);
+
+  if (!isLoaded) {
+    return <div className="py-20 text-center text-slate-500">Loading...</div>;
+  }
 
   return (
-    <SettingsClient
-      autoDepositEnabled={settings?.autoDepositEnabled ?? false}
-      autoDepositAccountId={settings?.autoDepositAccountId ?? ""}
-      accounts={accounts.map((a: (typeof accounts)[number]) => ({
-        id: a.id,
-        label: labelAccountType(a.type),
-        accountNumber: a.accountNumber,
-      }))}
-      mfaEnabled={user?.mfaEnabled ?? false}
-      mfaSecret={user?.mfaSecret ?? null}
-      devices={devices.map((d: (typeof devices)[number]) => ({
-        id: d.id,
-        label: d.label,
-        lastSeenAt: d.lastSeenAt ? d.lastSeenAt.toISOString() : null,
-      }))}
-    />
+    <div>
+      <div className="text-sm font-medium text-slate-500">Settings</div>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Settings</h1>
+      <p className="mt-2 text-sm text-slate-600">Manage your account preferences.</p>
+
+      <div className="mt-8 space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Profile</h2>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700">Name</label>
+              <input type="text" defaultValue="Demo User" className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" disabled />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Email</label>
+              <input type="email" defaultValue="demo@apex.ca" className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" disabled />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Security</h2>
+          <p className="mt-2 text-sm text-slate-600">Two-factor authentication and trusted devices.</p>
+          <div className="mt-4">
+            <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+              2FA Disabled
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

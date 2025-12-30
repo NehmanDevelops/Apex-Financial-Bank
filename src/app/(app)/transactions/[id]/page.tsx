@@ -1,57 +1,52 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { TransactionDetailClient } from "./transactionDetailClient";
+"use client";
 
-function formatMoney(n: number) {
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-    minimumFractionDigits: 2,
-  }).format(n);
-}
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function TransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  if (!userId) redirect("/login");
+export default function TransactionDetailPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const { id } = await params;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const loggedIn = localStorage.getItem("demo-logged-in");
+      if (loggedIn !== "true") {
+        router.push("/login");
+        return;
+      }
+      setIsLoaded(true);
+    }
+  }, [router]);
 
-  const tx = await prisma.transaction.findFirst({
-    where: { id, account: { userId } },
-    include: { account: true, dispute: true },
-  });
-
-  if (!tx) redirect("/accounts");
+  if (!isLoaded) {
+    return <div className="py-20 text-center text-slate-500">Loading...</div>;
+  }
 
   return (
-    <TransactionDetailClient
-      tx={{
-        id: tx.id,
-        description: tx.description,
-        merchant: tx.merchant,
-        memo: tx.memo,
-        amount: tx.amount,
-        type: tx.type,
-        status: tx.status,
-        date: tx.date.toISOString(),
-        accountNumber: tx.account.accountNumber,
-      }}
-      dispute={
-        tx.dispute
-          ? {
-              id: tx.dispute.id,
-              caseNumber: tx.dispute.caseNumber,
-              reason: tx.dispute.reason,
-              status: tx.dispute.status,
-              comments: tx.dispute.comments,
-              createdAt: tx.dispute.createdAt.toISOString(),
-            }
-          : null
-      }
-      displayAmount={formatMoney(tx.type === "CREDIT" ? tx.amount : -tx.amount)}
-    />
+    <div>
+      <div className="text-sm font-medium text-slate-500">Transaction</div>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Transaction Details</h1>
+
+      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <span className="text-slate-500">Description</span>
+            <span className="font-medium text-slate-900">Starbucks</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Amount</span>
+            <span className="font-medium text-red-600">-$8.45</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Date</span>
+            <span className="font-medium text-slate-900">Dec 26, 2025</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Status</span>
+            <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">POSTED</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
