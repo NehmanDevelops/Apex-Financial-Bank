@@ -20,6 +20,32 @@ export function LandingClient() {
   const [state, action, pending] = useActionState(createAccount, initialState);
 
   const [lang, setLang] = useState<"en" | "fr">("en");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Load saved preferences on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("apex_theme");
+      const savedLang = localStorage.getItem("apex_lang") as "en" | "fr" | null;
+
+      if (savedTheme === "dark") {
+        setTheme("dark");
+        document.documentElement.dataset.theme = "dark";
+      }
+      if (savedLang === "fr" || savedLang === "en") {
+        setLang(savedLang);
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("apex_theme", next);
+      document.documentElement.dataset.theme = next;
+    }
+  };
 
   const [registrationType, setRegistrationType] = useState<"DEBIT" | "CREDIT">("DEBIT");
 
@@ -135,7 +161,7 @@ export function LandingClient() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-50 transition-colors duration-300">
       <header className="bg-[#0b6aa9]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
@@ -146,10 +172,21 @@ export function LandingClient() {
             <div className="text-xs font-medium text-white/90">{copy.secureOnlineBanking}</div>
             <button
               type="button"
-              onClick={() => setLang((v) => (v === "en" ? "fr" : "en"))}
-              className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15"
+              onClick={toggleTheme}
+              className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
             >
-              {lang === "en" ? "FR" : "EN"}
+              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const next = lang === "en" ? "fr" : "en";
+                setLang(next);
+                localStorage.setItem("apex_lang", next);
+              }}
+              className="rounded-md bg-white/10 px-2 py-1 text-xs font-semibold text-white hover:bg-white/15 transition-colors"
+            >
+              {lang === "en" ? "🇫🇷 FR" : "🇬🇧 EN"}
             </button>
           </div>
         </div>
