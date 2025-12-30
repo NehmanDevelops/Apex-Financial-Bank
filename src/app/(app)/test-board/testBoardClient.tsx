@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  getDemoCounts,
+  seedDemoData,
+  addETransfer,
+  addBillPayment,
+  addDispute,
+  getLatestDebit
+} from "@/lib/demoStore";
 
 export function TestBoardClient({
-  counts,
+  counts: initialCounts,
 }: {
   counts: {
     contacts: number;
@@ -16,37 +24,77 @@ export function TestBoardClient({
   };
 }) {
   const [toast, setToast] = useState<string | null>(null);
-  const [localCounts, setLocalCounts] = useState(counts);
+  const [counts, setCounts] = useState(initialCounts);
+
+  // Refresh counts from localStorage on mount
+  useEffect(() => {
+    setCounts(getDemoCounts());
+  }, []);
+
+  function refreshCounts() {
+    setCounts(getDemoCounts());
+  }
 
   function handleSeedDemo() {
-    setToast("Demo data seeded!");
-    setLocalCounts({
-      contacts: localCounts.contacts + 5,
-      payees: localCounts.payees + 3,
-      transfersPending: localCounts.transfersPending,
-      scheduled: localCounts.scheduled,
-      disputes: localCounts.disputes,
-      transactions: localCounts.transactions + 20,
-    });
-    setTimeout(() => setToast(null), 2200);
+    seedDemoData();
+    refreshCounts();
+    setToast("Demo data seeded! Added 5 contacts, 3 payees, and 5 transactions.");
+    setTimeout(() => setToast(null), 3000);
   }
 
   function handleCreateTransfer() {
-    setToast("Incoming e-Transfer created!");
-    setLocalCounts({ ...localCounts, transfersPending: localCounts.transfersPending + 1 });
-    setTimeout(() => setToast(null), 2200);
+    const names = ["Alex Brown", "Maria Garcia", "Chris Lee", "Jordan Taylor", "Sam Wilson"];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomAmount = Math.floor(Math.random() * 500) + 50;
+
+    addETransfer({
+      fromName: randomName,
+      amount: randomAmount,
+      date: new Date().toISOString(),
+      status: "PENDING",
+      message: "Here you go!",
+    });
+
+    refreshCounts();
+    setToast(`Created incoming e-Transfer of $${randomAmount} from ${randomName}!`);
+    setTimeout(() => setToast(null), 3000);
   }
 
   function handleCreateBillPay() {
-    setToast("Scheduled bill payment created!");
-    setLocalCounts({ ...localCounts, scheduled: localCounts.scheduled + 1 });
-    setTimeout(() => setToast(null), 2200);
+    const payees = ["Bell Canada", "Enbridge Gas", "TD Insurance", "City of Ottawa", "CIBC"];
+    const randomPayee = payees[Math.floor(Math.random() * payees.length)];
+    const randomAmount = Math.floor(Math.random() * 200) + 50;
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 14) + 7);
+
+    addBillPayment({
+      payee: randomPayee,
+      amount: randomAmount,
+      dueDate: futureDate.toISOString().split("T")[0],
+      status: "SCHEDULED",
+    });
+
+    refreshCounts();
+    setToast(`Created scheduled bill payment of $${randomAmount} to ${randomPayee}!`);
+    setTimeout(() => setToast(null), 3000);
   }
 
   function handleCreateDispute() {
-    setToast("Dispute case created!");
-    setLocalCounts({ ...localCounts, disputes: localCounts.disputes + 1 });
-    setTimeout(() => setToast(null), 2200);
+    const latestDebit = getLatestDebit();
+    if (latestDebit) {
+      addDispute({
+        transactionDescription: latestDebit.description,
+        amount: latestDebit.amount,
+        date: new Date().toISOString(),
+        status: "OPEN",
+        reason: "Unrecognized transaction",
+      });
+      refreshCounts();
+      setToast(`Created dispute for "${latestDebit.description}" ($${latestDebit.amount.toFixed(2)})!`);
+    } else {
+      setToast("No debit transactions found to dispute!");
+    }
+    setTimeout(() => setToast(null), 3000);
   }
 
   return (
@@ -63,19 +111,19 @@ export function TestBoardClient({
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Contacts</div>
-              <div className="mt-1 font-semibold text-slate-900">{localCounts.contacts}</div>
+              <div className="mt-1 font-semibold text-slate-900">{counts.contacts}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Payees</div>
-              <div className="mt-1 font-semibold text-slate-900">{localCounts.payees}</div>
+              <div className="mt-1 font-semibold text-slate-900">{counts.payees}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Transactions</div>
-              <div className="mt-1 font-semibold text-slate-900">{localCounts.transactions}</div>
+              <div className="mt-1 font-semibold text-slate-900">{counts.transactions}</div>
             </div>
             <div className="rounded-xl bg-slate-50 p-3">
               <div className="text-xs text-slate-500">Disputes</div>
-              <div className="mt-1 font-semibold text-slate-900">{localCounts.disputes}</div>
+              <div className="mt-1 font-semibold text-slate-900">{counts.disputes}</div>
             </div>
           </div>
 
@@ -98,7 +146,7 @@ export function TestBoardClient({
               onClick={handleCreateTransfer}
               className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50"
             >
-              Create incoming e-Transfer (pending: {localCounts.transfersPending})
+              Create incoming e-Transfer (pending: {counts.transfersPending})
             </button>
 
             <button
@@ -106,7 +154,7 @@ export function TestBoardClient({
               onClick={handleCreateBillPay}
               className="w-full whitespace-normal break-words rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold leading-snug text-slate-900 hover:bg-slate-50"
             >
-              Create scheduled bill payment (scheduled: {localCounts.scheduled})
+              Create scheduled bill payment (scheduled: {counts.scheduled})
             </button>
 
             <button
