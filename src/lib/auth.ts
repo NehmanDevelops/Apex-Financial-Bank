@@ -15,13 +15,18 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("Authorize called with:", credentials?.email);
         const email = credentials?.email;
         const password = credentials?.password;
 
-        if (!email || !password) return null;
+        if (!email || !password) {
+          console.log("Missing email or password");
+          return null;
+        }
 
         // Hardcode demo user for Vercel deployment stability
         if (email === "demo@apex.ca" && password === "ApexSecure2025!") {
+          console.log("Demo user matched");
           return {
             id: "demo-user-id",
             email: "demo@apex.ca",
@@ -29,17 +34,30 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) return null;
+        console.log("Checking database for user...");
+        try {
+          const user = await prisma.user.findUnique({ where: { email } });
+          if (!user) {
+            console.log("User not found in DB");
+            return null;
+          }
 
-        const ok = await bcrypt.compare(password, user.password);
-        if (!ok) return null;
+          const ok = await bcrypt.compare(password, user.password);
+          if (!ok) {
+            console.log("Password mismatch");
+            return null;
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
+          console.log("User authenticated successfully");
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
+        } catch (error) {
+          console.error("Database error during auth:", error);
+          return null;
+        }
       },
     }),
   ],

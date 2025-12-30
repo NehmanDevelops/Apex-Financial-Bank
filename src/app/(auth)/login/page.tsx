@@ -1,17 +1,11 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
-import { Suspense } from "react";
-
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const callbackUrl = useMemo(() => searchParams.get("callbackUrl") ?? "/dashboard", [searchParams]);
 
   const [email, setEmail] = useState("demo@apex.ca");
   const [password, setPassword] = useState("ApexSecure2025!");
@@ -44,29 +38,24 @@ function LoginForm() {
     setLoading(true);
     setError(null);
 
-    if (typeof document !== "undefined") {
-      const has = document.cookie.split(";").some((p) => p.trim().startsWith("apex_device="));
-      if (!has) {
-        const id = crypto.randomUUID();
-        document.cookie = `apex_device=${id}; Path=/; SameSite=Lax`;
+    // Simple demo login - just check credentials client-side
+    if (email === "demo@apex.ca" && password === "ApexSecure2025!") {
+      // Set a simple session flag in localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem("demo-logged-in", "true");
+        localStorage.setItem("demo-user", JSON.stringify({
+          id: "demo-user-id",
+          email: "demo@apex.ca",
+          name: "Demo User"
+        }));
       }
-    }
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-      callbackUrl,
-    });
-
-    setLoading(false);
-
-    if (!res || res.error) {
+      // Navigate to dashboard
+      router.push("/dashboard");
+    } else {
+      setLoading(false);
       setError("Invalid email or password.");
-      return;
     }
-
-    router.push(res.url ?? "/dashboard");
   }
 
   return (
@@ -141,13 +130,5 @@ function LoginForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
   );
 }
