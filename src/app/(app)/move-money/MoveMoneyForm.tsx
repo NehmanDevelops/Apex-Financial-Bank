@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { processTransfer } from "@/actions/transfer";
+import { useEffect, useMemo, useState } from "react";
 
 type AccountOption = {
   id: string;
@@ -13,11 +12,9 @@ type AccountOption = {
 type TransferResult =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initialState: TransferResult | null = null;
+    ok: false;
+    message: string;
+  };
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-CA", {
@@ -28,7 +25,37 @@ function formatMoney(n: number) {
 }
 
 export function MoveMoneyForm({ accounts }: { accounts: AccountOption[] }) {
-  const [state, action, pending] = useActionState(processTransfer, initialState);
+  // Mock action state for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<TransferResult | null>(null);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+
+    // Artificial delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const fromAccountId = String(formData.get("fromAccountId") ?? "");
+    const amount = Number(formData.get("amount") ?? 0);
+
+    if (amount > 5000) {
+      setState({ ok: false, message: "Transaction flagged for security review (Code: 99)." });
+      setPending(false);
+      return;
+    }
+
+    const account = accounts.find(a => a.id === fromAccountId);
+    if (!account || account.balance < amount) {
+      setState({ ok: false, message: "Insufficient funds." });
+      setPending(false);
+      return;
+    }
+
+    // Success mock
+    setState({ ok: true });
+    setPending(false);
+  };
 
   const [toast, setToast] = useState<string | null>(null);
   const [showFraudModal, setShowFraudModal] = useState(false);

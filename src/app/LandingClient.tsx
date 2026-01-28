@@ -1,10 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createAccount } from "@/actions/createAccount";
 
 type CreateAccountResult =
   | { ok: true }
@@ -17,7 +15,29 @@ const initialState: CreateAccountResult | null = null;
 
 export function LandingClient() {
   const router = useRouter();
-  const [state, action, pending] = useActionState(createAccount, initialState);
+
+  // Mock action state for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<CreateAccountResult | null>(null);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+
+    // Artificial delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const name = String(formData.get("name") ?? "").trim();
+    if (!name) {
+      setState({ ok: false, message: "Enter your name." });
+      setPending(false);
+      return;
+    }
+
+    // Success mock
+    setState({ ok: true });
+    setPending(false);
+  };
 
   const [lang, setLang] = useState<"en" | "fr">("en");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -69,23 +89,19 @@ export function LandingClient() {
   const callbackUrl = useMemo(() => "/dashboard", []);
 
   useEffect(() => {
-    async function run() {
-      if (!state?.ok) return;
+    if (!state?.ok) return;
 
-      // Auto sign-in newly created user.
-      const res = await signIn("credentials", {
+    // Auto sign-in newly created user via localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("demo-logged-in", "true");
+      localStorage.setItem("demo-user", JSON.stringify({
+        id: "demo-user-id",
         email: email.trim().toLowerCase(),
-        password,
-        redirect: false,
-        callbackUrl,
-      });
-
-      if (!res || res.error) return;
-      router.push(res.url ?? "/dashboard");
+        name: name || "New User"
+      }));
     }
-
-    void run();
-  }, [state, email, password, callbackUrl, router]);
+    router.push("/dashboard");
+  }, [state, email, router, name]);
 
   const copy = useMemo(() => {
     if (lang === "fr") {
