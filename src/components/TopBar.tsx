@@ -1,5 +1,6 @@
 "use client";
 
+import logo from "../../public/apexfinancial.png";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
@@ -58,7 +59,7 @@ export function TopBar() {
     <header className="bg-[#0b6aa9]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6 sm:py-3">
         <div className="flex items-center gap-2 sm:gap-3">
-          <Image src="/apexfinancial.png" alt="Apex Financial" width={32} height={32} priority className="rounded sm:w-9 sm:h-9" />
+          <Image src={logo} alt="Apex Financial" width={32} height={32} priority className="rounded sm:w-9 sm:h-9" />
           <div className="text-xs sm:text-sm font-semibold tracking-tight text-white">Apex Financial</div>
         </div>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import logo from "../../public/apexfinancial.png";
 import {
   ArrowLeftRight,
   ChevronDown,
@@ -110,7 +111,7 @@ export function Sidebar({ className }: { className?: string }) {
     >
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
-          <Image src="/apexfinancial.png" alt="Apex Financial" width={28} height={28} priority className="rounded" />
+          <Image src={logo} alt="Apex Financial" width={28} height={28} priority className="rounded" />
           <div>
             <div className="text-base font-semibold tracking-tight">Apex Financial</div>
             <div className="mt-0.5 text-xs text-slate-500">

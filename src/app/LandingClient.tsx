@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import logo from "../../public/apexfinancial.png";
 import { useRouter } from "next/navigation";
 
 type CreateAccountResult =
@@ -186,7 +187,7 @@ export function LandingClient() {
       <header className="bg-[#0b6aa9]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <Image src="/apexfinancial.png" alt="Apex Financial" width={44} height={44} priority className="rounded" />
+            <Image src={logo} alt="Apex Financial" width={44} height={44} priority className="rounded" />
             <div className="text-sm font-semibold tracking-tight text-white">Apex Financial</div>
           </div>
           <div className="flex items-center gap-4">
