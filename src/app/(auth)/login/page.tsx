@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import logo from "../../../public/apexfinancial.png";
 import { useMemo, useState } from "react";
 
 export default function LoginPage() {
@@ -63,7 +64,7 @@ export default function LoginPage() {
       <header className="bg-[#0b6aa9]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <Image src="/apexfinancial.png" alt="Apex Financial" width={44} height={44} priority className="rounded" />
+            <Image src={logo} alt="Apex Financial" width={44} height={44} priority className="rounded" />
             <div className="text-sm font-semibold tracking-tight text-white">Apex Financial</div>
           </div>
           <div className="flex items-center gap-4">
@@ -82,7 +83,7 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-md flex-col justify-center px-6">
         <div className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
           <div className="flex justify-center">
-            <Image src="/apexfinancial.png" alt="Apex Financial" width={96} height={96} priority className="rounded" />
+            <Image src={logo} alt="Apex Financial" width={96} height={96} priority className="rounded" />
           </div>
           <h1 className="mt-5 text-center text-2xl font-semibold tracking-tight text-slate-900">{copy.signIn}</h1>
           <p className="mt-2 text-center text-sm text-slate-600">Use the demo credentials to access your dashboard.</p>
