@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { sendETransfer } from "@/actions/eTransfer";
+import { useEffect, useMemo, useState } from "react";
 
 type AccountOption = {
   id: string;
@@ -20,11 +19,9 @@ type ContactOption = {
 type Result =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initialState: Result | null = null;
+    ok: false;
+    message: string;
+  };
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-CA", {
@@ -41,7 +38,24 @@ export function ETransferSendClient({
   accounts: AccountOption[];
   contacts: ContactOption[];
 }) {
-  const [state, action, pending] = useActionState(sendETransfer, initialState);
+  // Mock action state for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<Result | null>(null);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const amount = Number(formData.get("amount") ?? 0);
+    const fromAccountId = String(formData.get("fromAccountId") ?? "");
+    const account = accounts.find(a => a.id === fromAccountId);
+    if (!account || account.balance < amount) {
+      setState({ ok: false, message: "Insufficient funds." });
+    } else {
+      setState({ ok: true });
+    }
+    setPending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
   const [toEmail, setToEmail] = useState<string>("");
   const [toPhone, setToPhone] = useState<string>("");

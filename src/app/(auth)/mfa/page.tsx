@@ -1,9 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { verifyMfa } from "@/actions/mfa";
 
 type Result =
   | { ok: true }
@@ -12,16 +11,26 @@ type Result =
     message: string;
   };
 
-const initial: Result | null = null;
-
-import { Suspense } from "react";
-
-function MfaForm() {
+export function MfaForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
-  const [state, action, pending] = useActionState(verifyMfa, initial);
+  // Mock action state for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<Result | null>(null);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+
+    // Artificial delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Success mock - accept any 6 digits
+    setState({ ok: true });
+    setPending(false);
+  };
   const [code, setCode] = useState("");
   const [remember, setRemember] = useState(true);
 

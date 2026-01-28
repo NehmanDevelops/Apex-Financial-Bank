@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { openDispute } from "@/actions/disputes";
+import { useEffect, useMemo, useState } from "react";
 
 type TxDTO = {
   id: string;
@@ -27,22 +26,43 @@ type DisputeDTO = {
 type Result =
   | { ok: true; caseNumber: string }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initial: Result | null = null;
+    ok: false;
+    message: string;
+  };
 
 export function TransactionDetailClient({
   tx,
-  dispute,
+  dispute: initialDispute,
   displayAmount,
 }: {
   tx: TxDTO;
   dispute: DisputeDTO | null;
   displayAmount: string;
 }) {
-  const [state, action, pending] = useActionState(openDispute, initial);
+  // Mock action state for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<Result | null>(null);
+  const [dispute, setDispute] = useState(initialDispute);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const caseNumber = `CASE-${Math.random().toString(36).toUpperCase().slice(2, 9)}`;
+    const reason = String(formData.get("reason") ?? "OTHER");
+    const comments = String(formData.get("comments") ?? "");
+
+    setDispute({
+      id: "new-dispute",
+      caseNumber,
+      reason,
+      status: "OPEN",
+      comments,
+      createdAt: new Date().toISOString()
+    });
+    setState({ ok: true, caseNumber });
+    setPending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {

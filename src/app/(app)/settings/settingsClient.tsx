@@ -1,15 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { saveAutoDepositSettings } from "@/actions/eTransfer";
-import { confirmMfaSetup, disableMfa, removeTrustedDevice, startMfaSetup } from "@/actions/mfa";
+import { useEffect, useMemo, useState } from "react";
 
 type Result =
   | { ok: true; secret?: string }
   | {
-      ok: false;
-      message: string;
-    };
+    ok: false;
+    message: string;
+  };
 
 type AccountOption = {
   id: string;
@@ -23,15 +21,13 @@ type DeviceRow = {
   lastSeenAt: string | null;
 };
 
-const initialState: Result | null = null;
-
 export function SettingsClient({
   autoDepositEnabled,
   autoDepositAccountId,
   accounts,
-  mfaEnabled,
-  mfaSecret,
-  devices,
+  mfaEnabled: initialMfaEnabled,
+  mfaSecret: initialMfaSecret,
+  devices: initialDevices,
 }: {
   autoDepositEnabled: boolean;
   autoDepositAccountId: string;
@@ -40,11 +36,71 @@ export function SettingsClient({
   mfaSecret: string | null;
   devices: DeviceRow[];
 }) {
-  const [state, action, pending] = useActionState(saveAutoDepositSettings, initialState);
-  const [startState, startAction, startPending] = useActionState(startMfaSetup, initialState);
-  const [confirmState, confirmAction, confirmPending] = useActionState(confirmMfaSetup, initialState);
-  const [disableState, disableAction, disablePending] = useActionState(disableMfa, initialState);
-  const [removeState, removeAction, removePending] = useActionState(removeTrustedDevice, initialState);
+  // Mock action states for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<Result | null>(null);
+
+  const [startPending, setStartPending] = useState(false);
+  const [startState, setStartState] = useState<Result | null>(null);
+
+  const [confirmPending, setConfirmPending] = useState(false);
+  const [confirmState, setConfirmState] = useState<Result | null>(null);
+
+  const [disablePending, setDisablePending] = useState(false);
+  const [disableState, setDisableState] = useState<Result | null>(null);
+
+  const [removePending, setRemovePending] = useState(false);
+  const [removeState, setRemoveState] = useState<Result | null>(null);
+
+  const [mfaEnabled, setMfaEnabled] = useState(initialMfaEnabled);
+  const [mfaSecret, setMfaSecret] = useState(initialMfaSecret);
+  const [devices, setDevices] = useState(initialDevices);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setState({ ok: true });
+    setPending(false);
+  };
+
+  const startAction = async () => {
+    setStartPending(true);
+    setStartState(null);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setStartState({ ok: true, secret: "MOCK-SECRET-123-456" });
+    setStartPending(false);
+  };
+
+  const confirmAction = async (formData: FormData) => {
+    setConfirmPending(true);
+    setConfirmState(null);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setMfaEnabled(true);
+    setMfaSecret("MOCK-SECRET-123-456");
+    setConfirmState({ ok: true });
+    setConfirmPending(false);
+  };
+
+  const disableAction = async () => {
+    setDisablePending(true);
+    setDisableState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setMfaEnabled(false);
+    setMfaSecret(null);
+    setDisableState({ ok: true });
+    setDisablePending(false);
+  };
+
+  const removeAction = async (formData: FormData) => {
+    setRemovePending(true);
+    setRemoveState(null);
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const id = String(formData.get("id") ?? "");
+    setDevices(prev => prev.filter(d => d.id !== id));
+    setRemoveState({ ok: true });
+    setRemovePending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
 
   const defaultAccountId = useMemo(() => autoDepositAccountId || accounts[0]?.id || "", [accounts, autoDepositAccountId]);

@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { addPayee, processBillPay, runScheduledPayments, scheduleBillPayment } from "@/actions/billPay";
+import { useEffect, useMemo, useState } from "react";
 
 type AccountOption = {
   id: string;
@@ -13,27 +12,23 @@ type AccountOption = {
 type BillPayResult =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
+    ok: false;
+    message: string;
+  };
 
 type PayeeResult =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
+    ok: false;
+    message: string;
+  };
 
 type ScheduleResult =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initialState: BillPayResult | null = null;
-const initialPayeeState: PayeeResult | null = null;
-const initialScheduleState: ScheduleResult | null = null;
+    ok: false;
+    message: string;
+  };
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-CA", {
@@ -56,17 +51,83 @@ type UpcomingPayment = {
 
 export function BillPayForm({
   accounts,
-  payees,
-  upcoming,
+  payees: initialPayees,
+  upcoming: initialUpcoming,
 }: {
   accounts: AccountOption[];
   payees: PayeeOption[];
   upcoming: UpcomingPayment[];
 }) {
-  const [state, action, pending] = useActionState(processBillPay, initialState);
-  const [payeeState, payeeAction, payeePending] = useActionState(addPayee, initialPayeeState);
-  const [scheduleState, scheduleAction, schedulePending] = useActionState(scheduleBillPayment, initialScheduleState);
-  const [runState, runAction, runPending] = useActionState(runScheduledPayments, null);
+  // Mock action states for static export
+  const [pending, setPending] = useState(false);
+  const [state, setState] = useState<BillPayResult | null>(null);
+
+  const [payeePending, setPayeePending] = useState(false);
+  const [payeeState, setPayeeState] = useState<PayeeResult | null>(null);
+
+  const [schedulePending, setSchedulePending] = useState(false);
+  const [scheduleState, setScheduleState] = useState<ScheduleResult | null>(null);
+
+  const [runPending, setRunPending] = useState(false);
+  const [runState, setRunState] = useState<any | null>(null);
+
+  const [payees, setPayees] = useState(initialPayees);
+  const [upcoming, setUpcoming] = useState(initialUpcoming);
+
+  const action = async (formData: FormData) => {
+    setPending(true);
+    setState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const amount = Number(formData.get("amount") ?? 0);
+    const fromAccountId = String(formData.get("fromAccountId") ?? "");
+    const account = accounts.find(a => a.id === fromAccountId);
+    if (!account || account.balance < amount) {
+      setState({ ok: false, message: "Insufficient funds." });
+    } else {
+      setState({ ok: true });
+    }
+    setPending(false);
+  };
+
+  const payeeAction = async (formData: FormData) => {
+    setPayeePending(true);
+    setPayeeState(null);
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const name = String(formData.get("name") ?? "").trim();
+    if (!name) {
+      setPayeeState({ ok: false, message: "Enter payee name." });
+    } else {
+      setPayees(prev => [...prev, { id: `p${Date.now()}`, name }]);
+      setPayeeState({ ok: true });
+    }
+    setPayeePending(false);
+  };
+
+  const scheduleAction = async (formData: FormData) => {
+    setSchedulePending(true);
+    setScheduleState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const payeeId = String(formData.get("payeeId") ?? "");
+    const payee = payees.find(p => p.id === payeeId);
+    setUpcoming(prev => [...prev, {
+      id: `s${Date.now()}`,
+      payeeName: payee?.name || "Biller",
+      amount: Number(formData.get("amount") ?? 0),
+      nextRunAt: String(formData.get("startDate") ?? new Date().toISOString()),
+      status: "SCHEDULED",
+      frequency: String(formData.get("frequency") ?? "ONE_TIME"),
+      fromAccountNumber: "000-0000"
+    }]);
+    setScheduleState({ ok: true });
+    setSchedulePending(false);
+  };
+
+  const runAction = async () => {
+    setRunPending(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setRunState({ ok: true });
+    setRunPending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {

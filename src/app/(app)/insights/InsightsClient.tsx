@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
-import { runCategorization, setMonthlyBudget } from "@/actions/insights";
 
 type CategoryRow = {
   id: string;
@@ -16,11 +15,9 @@ type CategoryRow = {
 type Result =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initial: Result | null = null;
+    ok: false;
+    message: string;
+  };
 
 function formatMoney(n: number) {
   return new Intl.NumberFormat("en-CA", {
@@ -31,7 +28,7 @@ function formatMoney(n: number) {
 }
 
 export function InsightsClient({
-  categories,
+  categories: initialCategories,
   trend,
   month,
   year,
@@ -41,8 +38,32 @@ export function InsightsClient({
   month: number;
   year: number;
 }) {
-  const [catState, catAction, catPending] = useActionState(runCategorization, initial);
-  const [budgetState, budgetAction, budgetPending] = useActionState(setMonthlyBudget, initial);
+  // Mock action states for static export
+  const [categories, setCategories] = useState(initialCategories);
+  const [catPending, setCatPending] = useState(false);
+  const [catState, setCatState] = useState<Result | null>(null);
+
+  const [budgetPending, setBudgetPending] = useState(false);
+  const [budgetState, setBudgetState] = useState<Result | null>(null);
+
+  const catAction = async () => {
+    setCatPending(true);
+    setCatState(null);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setCatState({ ok: true });
+    setCatPending(false);
+  };
+
+  const budgetAction = async (formData: FormData) => {
+    setBudgetPending(true);
+    setBudgetState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const catId = String(formData.get("categoryId") ?? "");
+    const amount = Number(formData.get("amount") ?? 0);
+    setCategories(prev => prev.map(c => c.id === catId ? { ...c, budget: amount } : c));
+    setBudgetState({ ok: true });
+    setBudgetPending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {

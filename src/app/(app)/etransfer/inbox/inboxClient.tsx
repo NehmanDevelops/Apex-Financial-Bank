@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import { acceptETransfer, declineETransfer } from "@/actions/eTransfer";
+import { useEffect, useMemo, useState } from "react";
 
 type AccountOption = {
   id: string;
@@ -27,16 +26,14 @@ type TransferRow = {
 type Result =
   | { ok: true }
   | {
-      ok: false;
-      message: string;
-    };
-
-const initialState: Result | null = null;
+    ok: false;
+    message: string;
+  };
 
 export function ETransferInboxClient({
   accounts,
-  incoming,
-  sent,
+  incoming: initialIncoming,
+  sent: initialSent,
   autoDepositEnabled,
   defaultDepositAccountId,
 }: {
@@ -46,8 +43,35 @@ export function ETransferInboxClient({
   autoDepositEnabled: boolean;
   defaultDepositAccountId: string | null;
 }) {
-  const [acceptState, acceptAction, acceptPending] = useActionState(acceptETransfer, initialState);
-  const [declineState, declineAction, declinePending] = useActionState(declineETransfer, initialState);
+  // Mock action states for static export
+  const [acceptPending, setAcceptPending] = useState(false);
+  const [acceptState, setAcceptState] = useState<Result | null>(null);
+
+  const [declinePending, setDeclinePending] = useState(false);
+  const [declineState, setDeclineState] = useState<Result | null>(null);
+
+  const [incoming, setIncoming] = useState(initialIncoming);
+  const [sent, setSent] = useState(initialSent);
+
+  const acceptAction = async (formData: FormData) => {
+    setAcceptPending(true);
+    setAcceptState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const id = String(formData.get("eTransferId") ?? "");
+    setIncoming(prev => prev.map(t => t.id === id ? { ...t, status: "DEPOSITED" } : t));
+    setAcceptState({ ok: true });
+    setAcceptPending(false);
+  };
+
+  const declineAction = async (formData: FormData) => {
+    setDeclinePending(true);
+    setDeclineState(null);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const id = String(formData.get("eTransferId") ?? "");
+    setIncoming(prev => prev.map(t => t.id === id ? { ...t, status: "DECLINED" } : t));
+    setDeclineState({ ok: true });
+    setDeclinePending(false);
+  };
   const [toast, setToast] = useState<string | null>(null);
 
   const defaultAccountId = useMemo(() => defaultDepositAccountId ?? accounts[0]?.id ?? "", [accounts, defaultDepositAccountId]);
